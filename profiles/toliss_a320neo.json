@@ -1,0 +1,138 @@
+{
+  "id": "toliss_a320neo",
+  "name": "ToLiss A320neo / A321neo",
+  "vendor": "ToLiss",
+  "aircraft": "A320neo",
+  "description": "ToLiss A320neo(A321neo) X-Plane 11/12 涂装。通过 objects/livery.tlscfg 控制发动机、卫星通信等可选部件。",
+  "installHint": "打包结果放到: X-Plane\\Aircraft\\ToLiss A320 NEO\\liveries\\ 下",
+  "detect": [
+    { "type": "file_exists", "path": "objects/livery.tlscfg", "weight": 60 },
+    { "type": "file_glob",   "path": "objects/NEO.*",       "weight": 40 },
+    { "type": "file_glob",   "path": "objects/fuselage.*",  "weight": 30 },
+    { "type": "name_contains", "value": "a320", "weight": 15 },
+    { "type": "name_contains", "value": "a321", "weight": 15 },
+    { "type": "file_glob",   "path": "*a320*icon11*.*",     "weight": 20 },
+    { "type": "file_glob",   "path": "NEO.*",               "weight": 20 },
+    { "type": "file_glob",   "path": "fuselage.*",          "weight": 25 }
+  ],
+  "minScore": 40,
+  "textureDir": "objects",
+  "config": {
+    "paths": [
+      "objects/livery.tlscfg",
+      "livery.tlscfg",
+      "objects/tlsconfig",
+      "tlsconfig"
+    ],
+    "preferred": "objects/livery.tlscfg"
+  },
+  "fields": [
+    {
+      "key": "airline",
+      "label": "航司名称",
+      "type": "text",
+      "group": "基本信息",
+      "target": "meta",
+      "placeholder": "如 West Air",
+      "default": ""
+    },
+    {
+      "key": "registration",
+      "label": "注册号",
+      "type": "text",
+      "group": "基本信息",
+      "target": "meta",
+      "placeholder": "如 B-306T",
+      "default": ""
+    },
+    {
+      "key": "eng_type",
+      "label": "发动机型号",
+      "type": "choice",
+      "group": "机模配置 (写入 livery.tlscfg)",
+      "target": "config",
+      "allowCustom": true,
+      "help": "决定命名前缀 [PWG]/[LEAP]，并写入 eng_type。",
+      "default": "PWG",
+      "options": [
+        { "value": "PWG",  "label": "PWG · PW1100G（普惠齿轮传动）" },
+        { "value": "LEAP", "label": "LEAP · LEAP-1A（CFM）" }
+      ]
+    },
+    {
+      "key": "has_MultiFunRwyLights",
+      "label": "多功能滑行跑道灯 (MultiFunRwyLights)",
+      "type": "bool",
+      "group": "机模配置 (写入 livery.tlscfg)",
+      "target": "config",
+      "default": "NO"
+    },
+    {
+      "key": "has_satcom",
+      "label": "卫星通信天线 (Satcom)",
+      "type": "bool",
+      "group": "机模配置 (写入 livery.tlscfg)",
+      "target": "config",
+      "default": "NO"
+    },
+    {
+      "key": "has_eRudder",
+      "label": "电子舵面 (e-Rudder)",
+      "type": "bool",
+      "group": "机模配置 (写入 livery.tlscfg)",
+      "target": "config",
+      "default": "NO"
+    },
+    {
+      "key": "use_Imperial_Units",
+      "label": "英制单位显示 (Imperial Units)",
+      "type": "bool",
+      "group": "机模配置 (写入 livery.tlscfg)",
+      "target": "config",
+      "default": "YES"
+    }
+  ],
+  "naming": {
+    "prefixTemplate": "[{eng_type}]",
+    "nameTemplate": "{airline} {registration}"
+  },
+  "textureParts": {
+    "note": "机模在 objects 里按文件名加载 DDS 贴图。为下面的每个部位「选择图片…」，程序会把图片转成 DDS DXT5 并放到机模认识的名字/位置（PNG/BMP 自动转换；涂装图标除外）；不选的部位不会生成。",
+    "parts": [
+      {
+        "key": "fuselage",
+        "label": "机身贴图 (fuselage)",
+        "target": "objects/fuselage.dds",
+        "help": "机身主体。若不单独指定「涂装图标」，打包时会自动用它生成图标。"
+      },
+      {
+        "key": "wingL",
+        "label": "左机翼贴图 (wingL)",
+        "target": "objects/wingL.dds"
+      },
+      {
+        "key": "wingR",
+        "label": "右机翼贴图 (wingR)",
+        "target": "objects/wingR.dds"
+      },
+      {
+        "key": "NEO",
+        "label": "NEO 贴图 (NEO)",
+        "target": "objects/NEO.dds",
+        "help": "使用 NEO 型发动机/鲨鳍时的整机或部件贴图。"
+      },
+      {
+        "key": "selcal",
+        "label": "SELCAL 标牌 (selcal)",
+        "target": "objects/selcal.dds",
+        "help": "机身左前侧下部的 SELCAL（选择呼叫）标牌，按航司选装。"
+      }
+    ]
+  },
+  "icons": {
+    "iconSize": [800, 450],
+    "thumbSize": [174, 107],
+    "prefixHint": "a320",
+    "iconSource": "objects/fuselage.png"
+  }
+}

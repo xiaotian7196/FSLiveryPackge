@@ -1,0 +1,112 @@
+{
+  "id": "ff_777f_xp12",
+  "name": "FlightFactor 777 Freighter (XP12)",
+  "vendor": "FlightFactor",
+  "aircraft": "777-F",
+  "description": "FlightFactor 777-200F v2 (XP12) 货机涂装。无 per-livery 配置文件，按下方固定部位清单为机身/机翼等放置贴图即可。",
+  "installHint": "打包结果放到: X-Plane\\Aircraft\\777-200F\\liveries\\ 下",
+  "detect": [
+    { "type": "file_glob", "path": "objects/777/77F/fuselage*.*", "weight": 60 },
+    { "type": "file_glob", "path": "*777*icon11*.*", "weight": 30 },
+    { "type": "file_exists", "path": "objects/777/wings.*", "weight": 30 },
+    { "type": "name_contains", "value": "777", "weight": 15 }
+  ],
+  "minScore": 40,
+  "textureDir": "objects",
+  "config": {
+    "paths": [],
+    "preferred": ""
+  },
+  "textureParts": {
+    "note": "FlightFactor 777-F (XP12) 按 objects/777/ 下的固定文件名加载 DDS 贴图，与机模自带的 Paint Kit 一致。机身被拆成 1/2/3 三段，另有整张机翼、发动机(GE)与标识/贴纸图层。为每个部位「选择图片…」，程序会把图片转成 DDS DXT5 并放到机模认识的名字（PNG/BMP 自动转换；涂装图标除外）；不选的部位不会生成。",
+    "parts": [
+      {
+        "key": "fuselage1",
+        "label": "机身贴图 第 1 段 (fuselage1)",
+        "target": "objects/777/77F/fuselage1.dds",
+        "help": "777-F 机身三段贴图中的第 1 段（三段合起来覆盖整条机身，分界请对照机模自带的 Paint Kit）。若不单独指定「涂装图标」，打包时会自动用它生成图标。"
+      },
+      {
+        "key": "fuselage2",
+        "label": "机身贴图 第 2 段 (fuselage2)",
+        "target": "objects/777/77F/fuselage2.dds",
+        "help": "777-F 机身三段贴图中的第 2 段。"
+      },
+      {
+        "key": "fuselage3",
+        "label": "机身贴图 第 3 段 (fuselage3)",
+        "target": "objects/777/77F/fuselage3.dds",
+        "help": "777-F 机身三段贴图中的第 3 段。"
+      },
+      {
+        "key": "wings",
+        "label": "机翼贴图 (wings)",
+        "target": "objects/777/wings.dds",
+        "help": "整张机翼贴图（含上下表面）。"
+      },
+      {
+        "key": "engine",
+        "label": "发动机贴图 (GE)",
+        "target": "objects/777/GE.dds",
+        "help": "发动机短舱/整流罩贴图，777-F 为 GE90，固定名为 objects/777/GE.dds。"
+      },
+      {
+        "key": "decals",
+        "label": "标识/贴纸贴图 (decals)",
+        "target": "objects/777/ckpt/ckpt12/common.dds",
+        "help": "门框警示、舷号/贴纸、注册号等标识图层。FF777 在 objects/777/ckpt/ckpt12/common.dds 中读取该层，选图后程序会放到这个位置。"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "key": "variant",
+      "label": "机型型号",
+      "type": "text",
+      "group": "基本信息",
+      "target": "meta",
+      "placeholder": "如 200F",
+      "default": "200F"
+    },
+    {
+      "key": "engine",
+      "label": "发动机厂商",
+      "type": "choice",
+      "group": "基本信息",
+      "target": "meta",
+      "default": "GE",
+      "options": [
+        { "value": "GE", "label": "GE 通用电气" },
+        { "value": "PW", "label": "PW 普惠" }
+      ]
+    },
+    {
+      "key": "airline",
+      "label": "航司名称",
+      "type": "text",
+      "group": "基本信息",
+      "target": "meta",
+      "placeholder": "如 AIR CHINA CARGO",
+      "default": ""
+    },
+    {
+      "key": "registration",
+      "label": "注册号",
+      "type": "text",
+      "group": "基本信息",
+      "target": "meta",
+      "placeholder": "如 B-222S",
+      "default": ""
+    }
+  ],
+  "naming": {
+    "prefixTemplate": "[{variant} {engine}]",
+    "nameTemplate": "{airline} {registration}"
+  },
+  "icons": {
+    "iconSize": [800, 450],
+    "thumbSize": [174, 107],
+    "prefixHint": "777-F_xp12",
+    "iconSource": "objects/777/77F/fuselage1.png"
+  }
+}

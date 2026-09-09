@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>liveryAutoPackge · X-Plane 涂装从零打包</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <span class="logo">✈</span>
+      <div>
+        <h1>liveryAutoPackge</h1>
+        <p class="subtitle">X-Plane 机模涂装 · 从零打包 / 交互选项 / 自动图标</p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <span id="metaVersion" class="chip">…</span>
+      <span class="chip chip-out">输出：<b id="metaOutput">…</b></span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 步骤 1：机模档案 + 输出文件夹 -->
+  <section class="card" id="card-profile">
+    <div class="card-head">
+      <span class="step">1</span>
+      <h2>选择机模档案与输出文件夹</h2>
+      <span class="tag" id="profileTag">手动选择</span>
+    </div>
+    <div class="form-grid">
+      <label class="field">
+        <span class="field-name">机模档案</span>
+        <select id="profileSelect" class="select"></select>
+        <span class="field-help">切换档案后会自动加载该档案的涂装信息与部位贴图清单。</span>
+      </label>
+      <div class="field">
+        <span class="field-name">输出文件夹</span>
+        <div class="row">
+          <input id="outputDir" class="textbox" type="text" autocomplete="off">
+          <button id="btnBrowseOutput" class="btn" type="button">浏览…</button>
+        </div>
+        <span class="field-help">打包结果会写入这个文件夹；每个涂装会自动以「涂装名称」建立子文件夹。</span>
+      </div>
+    </div>
+    <div class="hint" id="profileInfo"></div>
+  </section>
+
+  <!-- 步骤 2：选项 -->
+  <section class="card" id="card-options">
+    <div class="card-head">
+      <span class="step">2</span>
+      <h2>填写涂装信息</h2>
+      <span class="tag" id="cfgTag">机模配置</span>
+    </div>
+    <div id="fieldsHost"><div class="empty">正在加载机模档案…</div></div>
+  </section>
+
+  <!-- 步骤 3：部位贴图（可选） -->
+  <section class="card hidden" id="card-textures">
+    <div class="card-head">
+      <span class="step">3</span>
+      <h2>选择部位贴图与图标 <small>（可选）</small></h2>
+      <span class="tag">散装贴图 / 自动改名</span>
+    </div>
+    <div class="hint" id="texNote"></div>
+    <div id="iconHost" class="field-group hidden"></div>
+    <div id="texHost" class="field-group">
+      <div class="empty">正在加载部位清单…</div>
+    </div>
+    <div class="button-row">
+      <button id="btnAddTex" class="btn btn-primary" type="button">＋ 添加自定义部位</button>
+    </div>
+  </section>
+
+  <!-- 步骤 4：命名预览 + 打包 -->
+  <section class="card card-last">
+    <div class="card-head">
+      <span class="step">4</span>
+      <h2>预览并打包</h2>
+    </div>
+    <div class="preview-row">
+      <span class="kv">将输出为</span>
+      <span id="namePreview" class="preview-name mono">Livery_…</span>
+      <span id="nameReason" class="hint-inline"></span>
+    </div>
+    <div class="button-row">
+      <label class="check">
+        <input type="checkbox" id="overwriteChk">
+        <span>同名已存在时直接覆盖</span>
+      </label>
+      <button id="btnPackage" class="btn btn-go" type="button">🚀 开始打包</button>
+    </div>
+  </section>
+
+  <!-- 结果报告 -->
+  <section class="card hidden" id="card-result">
+    <div class="card-head">
+      <span class="step ok">✓</span>
+      <h2>打包完成</h2>
+    </div>
+    <div class="result-actions" id="resultActions"></div>
+    <div class="result-out">
+      <span class="kv">输出位置</span>
+      <span id="resultPath" class="val mono"></span>
+    </div>
+    <div class="result-icons" id="resultIcons"></div>
+  </section>
+</main>
+
+<footer class="foot">liveryAutoPackge · 本地运行 · 数据不会上传 · X-Plane 11 / 12</footer>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

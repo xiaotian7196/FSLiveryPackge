@@ -1,0 +1,45 @@
+{
+  "id": "generic_xplane",
+  "name": "通用 X-Plane 涂装（自动）",
+  "vendor": "X-Plane 通用",
+  "aircraft": "其他机模",
+  "description": "通用 X-Plane 档案：没有固定部位时，可用「＋ 添加自定义部位」把任意图片放到指定文件名；按 航司+注册号 命名，不生成配置文件。",
+  "installHint": "请自行确认机模 liveries 目录位置。",
+  "detect": [],
+  "minScore": 0,
+  "textureDir": "objects",
+  "config": {
+    "paths": [],
+    "preferred": ""
+  },
+  "fields": [
+    {
+      "key": "airline",
+      "label": "航司名称",
+      "type": "text",
+      "group": "基本信息",
+      "target": "meta",
+      "placeholder": "如 China Southern",
+      "default": ""
+    },
+    {
+      "key": "registration",
+      "label": "注册号",
+      "type": "text",
+      "group": "基本信息",
+      "target": "meta",
+      "placeholder": "如 B-1234",
+      "default": ""
+    }
+  ],
+  "naming": {
+    "prefixTemplate": "",
+    "nameTemplate": "{airline} {registration}"
+  },
+  "icons": {
+    "iconSize": [800, 450],
+    "thumbSize": [174, 107],
+    "prefixHint": "livery",
+    "iconSource": ""
+  }
+}
