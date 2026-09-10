@@ -188,6 +188,48 @@ main {
   padding: 12px;
 }
 
+/* ---------- 可折叠选项面板（PMDG options.ini 等） ---------- */
+.fg-panel { margin-top: 6px; }
+.fg-panel + .fg-panel,
+.fg-panel + .field-group,
+.field-group + .fg-panel { margin-top: 20px; }
+.fg-panel-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: linear-gradient(90deg, #eef4fb, #f6fafd);
+  border: 1px solid #d7e5f2;
+  cursor: pointer; user-select: none;
+}
+.fg-panel-head:hover { background: linear-gradient(90deg, #e4eef9, #eef5fb); }
+.fg-caret {
+  color: var(--sky); font-size: 12px; width: 12px;
+  flex: 0 0 auto; transition: transform .15s;
+}
+.fg-panel-title {
+  font-size: 13px; font-weight: 700; color: #123a5e;
+}
+.fg-badge {
+  margin-left: auto; font-weight: 500; color: #6b7d8d;
+  background: #fff; padding: 2px 8px; border: 1px solid #dbe7f2;
+  font-size: 11px;
+}
+.fg-panel-body {
+  border: 1px solid #d7e5f2; border-top: none;
+  padding: 12px;
+  background: #ffffff;
+}
+.fg-panel.closed .fg-panel-body { display: none; }
+.fg-subgroup-title {
+  font-size: 12px; font-weight: 700; color: #2f6f9f;
+  margin: 10px 0 8px;
+  padding-bottom: 4px; border-bottom: 1px dashed #dce7f1;
+  display: flex; align-items: center; gap: 6px;
+}
+.fg-subgroup-title::before {
+  content: "└"; color: #9bb8d1; font-weight: 400;
+}
+.fg-panel-body .fg-subgroup-title:first-child { margin-top: 0; }
+
 /* ---------- 控件类型 ---------- */
 input[type="checkbox"].switch {
   display: none;

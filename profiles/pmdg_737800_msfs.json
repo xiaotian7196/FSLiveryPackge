@@ -1,0 +1,1793 @@
+{
+  "id": "pmdg_737800_msfs",
+  "name": "PMDG 737-800（MSFS 2020）",
+  "vendor": "PMDG",
+  "aircraft": "Boeing 737-800",
+  "description": "MSFS 2020 PMDG 737-800 涂装（airplane variation）。自动生成 aircraft.cfg / livery.json / model.cfg / texture.CFG，并集成 PMDG 的 options.ini：你在界面勾选的驾驶舱 / 机体可选项会写回 options.ini，未列出的按键与状态分节按默认底稿保留。",
+  "installHint": "把打包输出的文件夹整体放到 MSFS2020 社区文件夹的 …\\pmdg-aircraft-738\\SimObjects\\Airplanes\\ 下，与基础的 “PMDG 737-800” 文件夹同级。",
+  "detect": [
+    {
+      "type": "file_exists",
+      "path": "options.ini",
+      "weight": 70
+    },
+    {
+      "type": "file_exists",
+      "path": "livery.json",
+      "weight": 45
+    },
+    {
+      "type": "file_glob",
+      "path": "model.SSW/model.cfg",
+      "weight": 50
+    },
+    {
+      "type": "file_glob",
+      "path": "model.BW/model.cfg",
+      "weight": 40
+    },
+    {
+      "type": "file_glob",
+      "path": "texture.*/texture.CFG",
+      "weight": 30
+    },
+    {
+      "type": "file_name_contains",
+      "value": "PMDG_NG3",
+      "weight": 20
+    }
+  ],
+  "minScore": 50,
+  "derive": {
+    "liveryId": {
+      "expr": "{airline} {registration}",
+      "mode": "slug"
+    },
+    "textureTag": {
+      "expr": "{airlineCode}{registration}",
+      "mode": "code"
+    }
+  },
+  "naming": {
+    "nameTemplate": "PMDG 737-800 {liveryId}"
+  },
+  "fields": [
+    {
+      "key": "airline",
+      "label": "航空公司名称",
+      "type": "text",
+      "target": "meta",
+      "group": "基本信息",
+      "default": "",
+      "help": "示例：Southwest Airlines"
+    },
+    {
+      "key": "airlineCode",
+      "label": "航空公司代码（ICAO）",
+      "type": "text",
+      "target": "meta",
+      "group": "基本信息",
+      "default": "",
+      "help": "示例：SWA（将参与生成 textureTag）"
+    },
+    {
+      "key": "registration",
+      "label": "注册号",
+      "type": "text",
+      "target": "meta",
+      "group": "基本信息",
+      "default": "",
+      "help": "示例：N8699A（将参与生成 textureTag）"
+    },
+    {
+      "key": "modelCode",
+      "label": "模型代码",
+      "type": "choice",
+      "target": "meta",
+      "group": "基本信息",
+      "default": "SSW",
+      "allowCustom": true,
+      "options": [
+        {
+          "value": "SSW",
+          "label": "SSW（标准机翼 / 翼尖小翼）"
+        },
+        {
+          "value": "BW",
+          "label": "BW（不带小翼）"
+        }
+      ],
+      "help": "决定 model.<代码> 子文件夹与 aircraft.cfg 的 model= 项"
+    },
+    {
+      "key": "Glass_PFD_ND",
+      "label": "玻璃座舱 PFD/ND 综合显示（Glass_PFD_ND）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_low_airspeed_alert",
+      "label": "低空速警告（PFD_low_airspeed_alert）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_groundspeed_displayed",
+      "label": "显示地速（PFD_groundspeed_displayed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_Vref_plus_20_bug",
+      "label": "显示 Vref+20 游标（PFD_Vref_plus_20_bug）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_100knot_bug",
+      "label": "显示 100 节游标（PFD_100knot_bug）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_rising_runway",
+      "label": "上升跑道指示（PFD_rising_runway）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_split_axis_flight_director",
+      "label": "分离轴飞行指引（Split Axis FD）（PFD_split_axis_flight_director）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_pitch_limit_indicator_popup",
+      "label": "俯仰限制指示弹出（PFD_pitch_limit_indicator_popup）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_radio_altitude_round_dial",
+      "label": "无线电高度圆形表盘（PFD_radio_altitude_round_dial）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "0"
+    },
+    {
+      "key": "PFD_angle_of_attack_dial",
+      "label": "迎角表盘（PFD_angle_of_attack_dial）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_landing_altitude_bar",
+      "label": "着陆高度带（PFD_landing_altitude_bar）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_2500_height_alert",
+      "label": "2500 英尺高度提示（PFD_2500_height_alert）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_show_landing_flaps",
+      "label": "显示着陆襟翼（PFD_show_landing_flaps）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_integral_heading_scale",
+      "label": "整体航向刻度（PFD_integral_heading_scale）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "ND_trackUp",
+      "label": "ND 航迹向上显示（ND_trackUp）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "ND_VOR_course_lines_displayed",
+      "label": "ND 显示 VOR 航道线（ND_VOR_course_lines_displayed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "ND_VerticalSituationDisplay",
+      "label": "ND 垂直状态（剖面）显示（ND_VerticalSituationDisplay）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "ND_MinimumRunwayLength",
+      "label": "ND 最小跑道长度（英尺）（ND_MinimumRunwayLength）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "5000"
+    },
+    {
+      "key": "ND_RangeArcs",
+      "label": "ND 距离弧（ND_RangeArcs）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "ND_TCAS_RangeRing",
+      "label": "ND TCAS 距离环（ND_TCAS_RangeRing）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "ND_ActWptData",
+      "label": "ND 显示活动航路点数据（ND_ActWptData）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "PFD_ND_NPS",
+      "label": "PFD/ND NPS 导航性能缩放（PFD_ND_NPS）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "Engines_SideBySideDisplay",
+      "label": "发动机并排显示（Engines_SideBySideDisplay）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "0"
+    },
+    {
+      "key": "Engines_ColorChangeInhibit_5minutes",
+      "label": "发动机参数变色抑制 5 分钟（Engines_ColorChangeInhibit_5minutes）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "0"
+    },
+    {
+      "key": "Engines_ColorChangeInhibit_10minutes",
+      "label": "发动机参数变色抑制 10 分钟（Engines_ColorChangeInhibit_10minutes）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "0"
+    },
+    {
+      "key": "Engines_LowOilQuantityInverseVideo",
+      "label": "低滑油量反色显示（Engines_LowOilQuantityInverseVideo）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "Engines_HighVibrationAlert",
+      "label": "高振动告警（Engines_HighVibrationAlert）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "Engines_ShowRefN1",
+      "label": "显示参考 N1（Engines_ShowRefN1）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "2"
+    },
+    {
+      "key": "Engines_ShowOilQPercentage",
+      "label": "显示滑油量百分比（Engines_ShowOilQPercentage）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "Engines_ShowMaxContLines",
+      "label": "显示最大连续推力线（Engines_ShowMaxContLines）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "Fuel_LowAlertBelow1000lbs",
+      "label": "燃油低于 1000 磅告警（Fuel_LowAlertBelow1000lbs）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "0"
+    },
+    {
+      "key": "Fuel_TOTALDisplay",
+      "label": "显示 TOTAL 总燃油（Fuel_TOTALDisplay）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "0"
+    },
+    {
+      "key": "MFD_FlightControlSurfacesIndicator",
+      "label": "MFD 飞行操纵面指示（MFD_FlightControlSurfacesIndicator）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "MFD_BrakeTemperatureIndicator",
+      "label": "MFD 刹车温度指示（MFD_BrakeTemperatureIndicator）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "显示器 / PFD、ND、EICAS",
+      "section": "Displays",
+      "default": "1"
+    },
+    {
+      "key": "Engines_DoubleDerate",
+      "label": "双降额（Double Derate）（Engines_DoubleDerate）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "发动机",
+      "section": "Engines",
+      "default": "1"
+    },
+    {
+      "key": "Engines_TOBump",
+      "label": "起飞推力提升（TO Bump）（Engines_TOBump）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "发动机",
+      "section": "Engines",
+      "default": "1"
+    },
+    {
+      "key": "MCPType",
+      "label": "MCP 型号（1=经典 / 2=液显）（MCPType）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "MCP 模式选择",
+      "section": "MCP",
+      "default": "1"
+    },
+    {
+      "key": "WingsLevelatTO",
+      "label": "起飞时自动改平机翼（WingsLevelatTO）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "自动驾驶 / AFS",
+      "section": "AFS",
+      "default": "1"
+    },
+    {
+      "key": "AllowGSCaptureBeforeLoc",
+      "label": "允许截获航道前先截获下滑道（AllowGSCaptureBeforeLoc）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "自动驾驶 / AFS",
+      "section": "AFS",
+      "default": "0"
+    },
+    {
+      "key": "AllowAuroArmLNAVMA",
+      "label": "允许自动预位 LNAV / 复飞（AllowAuroArmLNAVMA）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "自动驾驶 / AFS",
+      "section": "AFS",
+      "default": "0"
+    },
+    {
+      "key": "RollOutEnabled",
+      "label": "启用着陆滑跑（Roll Out）（RollOutEnabled）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "自动驾驶 / AFS",
+      "section": "AFS",
+      "default": "0"
+    },
+    {
+      "key": "DefaultAccelHeight",
+      "label": "默认加速高度（英尺）（DefaultAccelHeight）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "飞行管理 FMS",
+      "section": "FMS",
+      "default": "1500"
+    },
+    {
+      "key": "DefaultEOAccelHeight",
+      "label": "默认单发加速高度（英尺）（DefaultEOAccelHeight）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "飞行管理 FMS",
+      "section": "FMS",
+      "default": "800"
+    },
+    {
+      "key": "DefaultReductionAlt",
+      "label": "默认减推力高度（英尺）（DefaultReductionAlt）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "飞行管理 FMS",
+      "section": "FMS",
+      "default": "1500"
+    },
+    {
+      "key": "DefaultCutBackAlt",
+      "label": "默认降功率高度（英尺）（DefaultCutBackAlt）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "飞行管理 FMS",
+      "section": "FMS",
+      "default": "800"
+    },
+    {
+      "key": "DefaultRestoreAlt",
+      "label": "默认恢复高度（英尺）（DefaultRestoreAlt）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "飞行管理 FMS",
+      "section": "FMS",
+      "default": "3000"
+    },
+    {
+      "key": "DefaultTransAlt",
+      "label": "默认过渡高度（英尺）（DefaultTransAlt）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "飞行管理 FMS",
+      "section": "FMS",
+      "default": "18000"
+    },
+    {
+      "key": "DefaultTransLevel",
+      "label": "默认过渡高度层（英尺）（DefaultTransLevel）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "飞行管理 FMS",
+      "section": "FMS",
+      "default": "18000"
+    },
+    {
+      "key": "MaxFixPages",
+      "label": "航路点最大分页数（MaxFixPages）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "飞行管理 FMS",
+      "section": "FMS",
+      "default": "6"
+    },
+    {
+      "key": "DesUnderSpdMargin",
+      "label": "下降低于速度裕度（节）（DesUnderSpdMargin）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "飞行管理 FMS",
+      "section": "FMS",
+      "default": "15"
+    },
+    {
+      "key": "CompanyCostIndex",
+      "label": "公司成本指数（CompanyCostIndex）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "FMS 数据链",
+      "section": "FMCDatalink",
+      "default": "40"
+    },
+    {
+      "key": "CompanyAltnRwyLength",
+      "label": "公司备降场最小跑道长度（英尺）（CompanyAltnRwyLength）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "FMS 数据链",
+      "section": "FMCDatalink",
+      "default": "6000"
+    },
+    {
+      "key": "CompanyAltnILS",
+      "label": "公司备降场 ILS 条件（CompanyAltnILS）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "FMS 数据链",
+      "section": "FMCDatalink",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_AltCallouts",
+      "label": "GPWS 高度喊话（GPWS_AltCallouts）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_2500",
+      "label": "GPWS 2500 英尺喊话（GPWS_2500）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_10",
+      "label": "GPWS 10 英尺喊话（GPWS_10）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_50",
+      "label": "GPWS 50 英尺喊话（GPWS_50）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_40",
+      "label": "GPWS 40 英尺喊话（GPWS_40）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_30",
+      "label": "GPWS 30 英尺喊话（GPWS_30）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_20",
+      "label": "GPWS 20 英尺喊话（GPWS_20）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_MinimumsType",
+      "label": "GPWS 最低标准类型（GPWS_MinimumsType）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_AprMinimumsType",
+      "label": "GPWS 进近最低标准类型（GPWS_AprMinimumsType）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "4"
+    },
+    {
+      "key": "GPWS_WarnBankAngle",
+      "label": "GPWS 坡度角告警（GPWS_WarnBankAngle）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_TerrPeaksMode",
+      "label": "GPWS 地形峰值模式（GPWS_TerrPeaksMode）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_TerrUseCyan",
+      "label": "GPWS 地形使用青色显示（GPWS_TerrUseCyan）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "0"
+    },
+    {
+      "key": "GPWS_V1Callout",
+      "label": "GPWS V1 喊话（GPWS_V1Callout）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_AirspeedLowAural",
+      "label": "GPWS 空速过低音响提示（GPWS_AirspeedLowAural）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_2500_RA",
+      "label": "GPWS 2500 英尺（无线电高度）喊话（GPWS_2500_RA）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "0"
+    },
+    {
+      "key": "GPWS_100",
+      "label": "GPWS 100 英尺喊话（GPWS_100）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_500",
+      "label": "GPWS 500 英尺喊话（GPWS_500）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "2"
+    },
+    {
+      "key": "GPWS_400",
+      "label": "GPWS 400 英尺喊话（GPWS_400）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_300",
+      "label": "GPWS 300 英尺喊话（GPWS_300）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_200",
+      "label": "GPWS 200 英尺喊话（GPWS_200）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "GPWS_1000",
+      "label": "GPWS 1000 英尺喊话（GPWS_1000）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "GPWS / TAWS",
+      "section": "GPWS",
+      "default": "1"
+    },
+    {
+      "key": "TCAS_ShowAllTraffic",
+      "label": "TCAS 显示全部交通（TCAS_ShowAllTraffic）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "TCAS 应答机",
+      "section": "TCAS",
+      "default": "0"
+    },
+    {
+      "key": "TCAS_FilterRange",
+      "label": "TCAS 交通过滤距离（海里）（TCAS_FilterRange）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "TCAS 应答机",
+      "section": "TCAS",
+      "default": "40"
+    },
+    {
+      "key": "TCAS_FilterSeparation",
+      "label": "TCAS 交通过滤间隔（英尺）（TCAS_FilterSeparation）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "TCAS 应答机",
+      "section": "TCAS",
+      "default": "2800"
+    },
+    {
+      "key": "Airstair",
+      "label": "登机梯（Airstair）（Airstair）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "ShortFieldPackage",
+      "label": "短跑道性能包（ShortFieldPackage）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "FlightTestPackage",
+      "label": "飞行测试包（FlightTestPackage）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "SteelBrakePackage",
+      "label": "钢刹车包（SteelBrakePackage）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "DualBatteryPackage",
+      "label": "双电瓶包（DualBatteryPackage）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Yoke CheckList L",
+      "label": "左驾驶杆检查单卡（Yoke CheckList L）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "Yoke CheckList R",
+      "label": "右驾驶杆检查单卡（Yoke CheckList R）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "HeadrestInstalled L",
+      "label": "左座椅头枕（HeadrestInstalled L）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "HeadrestInstalled R",
+      "label": "右座椅头枕（HeadrestInstalled R）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "ETOPS",
+      "label": "ETOPS 延程运行（ETOPS）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "DualCargoBottleSystem",
+      "label": "双货舱灭火瓶系统（DualCargoBottleSystem）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "SingleClassCabin",
+      "label": "单级客舱构型（SingleClassCabin）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "EyebrowWindows",
+      "label": "眉窗（风挡上方小窗）（EyebrowWindows）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "SatcomAntenna",
+      "label": "卫星通信（SATCOM）天线（SatcomAntenna）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "2"
+    },
+    {
+      "key": "EFBInstalled",
+      "label": "安装电子飞行包 EFB（EFBInstalled）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "LED Exterior Lights",
+      "label": "LED 外部灯光（LED Exterior Lights）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "2"
+    },
+    {
+      "key": "PIP Installed",
+      "label": "安装产品改进包（PIP）（PIP Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Auto Probe Heat Installed",
+      "label": "安装自动探头加温（Auto Probe Heat Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Auto Ignition Installed",
+      "label": "安装自动点火（Auto Ignition Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "TIOS Antenna Installed",
+      "label": "安装 TIOS 天线（TIOS Antenna Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "6500 Cabin Altitude Installed",
+      "label": "安装 6500 英尺客舱高度（6500 Cabin Altitude Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Fuel Cutoff New Style Installed",
+      "label": "安装新型燃油关断开关（Fuel Cutoff New Style Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "Pressurization Panel New Style Installed",
+      "label": "安装新型增压面板（Pressurization Panel New Style Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "MMR Panels Installed",
+      "label": "安装 MMR 多模接收机面板（MMR Panels Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Aux Fuel Config",
+      "label": "辅助燃油构型（Aux Fuel Config）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Aft Aux Tanks",
+      "label": "后部辅助油箱（Aft Aux Tanks）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Fwd Aux Tanks",
+      "label": "前部辅助油箱（Fwd Aux Tanks）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Yaw Damp Gauge Installed",
+      "label": "安装偏航阻尼表（Yaw Damp Gauge Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Stby Instruments",
+      "label": "备用仪表（Stby Instruments）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "HGSInstalled",
+      "label": "安装平视指引系统 HGS（HGSInstalled）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "HGS_AutoAIII",
+      "label": "HGS 自动 AIII 复飞（HGS_AutoAIII）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "HGS_GSrefInPRI",
+      "label": "HGS 主模式（PRI）显示下滑道参考（HGS_GSrefInPRI）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "Window Shades Installed",
+      "label": "安装遮阳板（Window Shades Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "0"
+    },
+    {
+      "key": "Flight Tablet Installed",
+      "label": "安装飞行平板电脑（Flight Tablet Installed）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "机体构型 / Airframe",
+      "section": "Airframe",
+      "default": "1"
+    },
+    {
+      "key": "MetricWeightUnits",
+      "label": "使用公制重量单位（MetricWeightUnits）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "单位制",
+      "section": "Units",
+      "default": "0"
+    },
+    {
+      "key": "EFBWeightLbs",
+      "label": "EFB 重量用磅（EFBWeightLbs）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "1"
+    },
+    {
+      "key": "EFBTemperaturesInF",
+      "label": "EFB 温度用华氏度（EFBTemperaturesInF）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "1"
+    },
+    {
+      "key": "EFBWindSpeedKnots",
+      "label": "EFB 风速用节（EFBWindSpeedKnots）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "1"
+    },
+    {
+      "key": "EFBNearestInclPrecision",
+      "label": "EFB 附近机场含精密进近（EFBNearestInclPrecision）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "1"
+    },
+    {
+      "key": "EFBNearestInclJetFuel",
+      "label": "EFB 附近机场含喷气燃油（EFBNearestInclJetFuel）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "1"
+    },
+    {
+      "key": "EFBDistanceFeet",
+      "label": "EFB 距离用英尺（EFBDistanceFeet）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "1"
+    },
+    {
+      "key": "EFBHeightFeet",
+      "label": "EFB 高度用英尺（EFBHeightFeet）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "1"
+    },
+    {
+      "key": "EFBObstDistanceRefStart",
+      "label": "EFB 障碍物距离自跑道入口起算（EFBObstDistanceRefStart）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "1"
+    },
+    {
+      "key": "EFBObstHeightRefStart",
+      "label": "EFB 障碍物高度基准选择（EFBObstHeightRefStart）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "1"
+    },
+    {
+      "key": "EFBRwyClrwyStpwy",
+      "label": "EFB 显示跑道/滑行道/停机坪（EFBRwyClrwyStpwy）",
+      "type": "bool",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "0"
+    },
+    {
+      "key": "EFBMinDatabaseRwyLength",
+      "label": "EFB 数据库最小跑道长度（英尺）（EFBMinDatabaseRwyLength）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "5000"
+    },
+    {
+      "key": "EFBMinNearestRwyLen",
+      "label": "EFB 附近机场最小跑道长度（英尺）（EFBMinNearestRwyLen）",
+      "type": "text",
+      "target": "config",
+      "group": "机模配置（写入 options.ini）",
+      "panel": "驾驶舱可选项（options.ini）",
+      "panelClosed": true,
+      "subgroup": "EFB 平板",
+      "section": "EFB",
+      "default": "5000"
+    }
+  ],
+  "config": {
+    "format": "ini",
+    "paths": [
+      "options.ini"
+    ],
+    "preferred": "options.ini",
+    "disableAutoIcon": true,
+    "defaultTemplate": "[Displays]\nGlass_PFD_ND=1\nPFD_low_airspeed_alert=1\nPFD_groundspeed_displayed=1\nPFD_Vref_plus_20_bug=1\nPFD_100knot_bug=1\nPFD_rising_runway=1\nPFD_split_axis_flight_director=1\nPFD_pitch_limit_indicator_popup=1\nPFD_radio_altitude_round_dial=0\nPFD_angle_of_attack_dial=1\nPFD_landing_altitude_bar=1\nPFD_2500_height_alert=1\nPFD_show_landing_flaps=1\nPFD_integral_heading_scale=1\nND_trackUp=1\nND_VOR_course_lines_displayed=1\nND_VerticalSituationDisplay=1\nND_MinimumRunwayLength=5000\nND_RangeArcs=1\nND_TCAS_RangeRing=1\nND_ActWptData=1\nPFD_ND_NPS=1\nEngines_SideBySideDisplay=0\nEngines_ColorChangeInhibit_5minutes=0\nEngines_ColorChangeInhibit_10minutes=0\nEngines_LowOilQuantityInverseVideo=1\nEngines_HighVibrationAlert=1\nEngines_ShowRefN1=2\nEngines_ShowOilQPercentage=1\nEngines_ShowMaxContLines=1\nFuel_LowAlertBelow1000lbs=0\nFuel_TOTALDisplay=0\nMFD_FlightControlSurfacesIndicator=1\nMFD_BrakeTemperatureIndicator=1\n\n[Engines]\nEngines_DoubleDerate=1\nEngines_TOBump=1\n\n[MCP]\nMCPType=1\n\n[AFS]\nWingsLevelatTO=1\nAllowGSCaptureBeforeLoc=0\nAllowAuroArmLNAVMA=0\nRollOutEnabled=0\n\n[FMS]\nDefaultAccelHeight=1500\nDefaultEOAccelHeight=800\nDefaultReductionAlt=1500\nDefaultCutBackAlt=800\nDefaultRestoreAlt=3000\nDefaultTransAlt=18000\nDefaultTransLevel=18000\nMaxFixPages=6\nDesUnderSpdMargin=15\n\n[FMCDatalink]\nCompanyCostIndex=40\nCompanyAltnRwyLength=6000\nCompanyAltnILS=1\n\n[GPWS]\nGPWS_AltCallouts=1\nGPWS_2500=1\nGPWS_10=1\nGPWS_50=1\nGPWS_40=1\nGPWS_30=1\nGPWS_20=1\nGPWS_MinimumsType=1\nGPWS_AprMinimumsType=4\nGPWS_WarnBankAngle=1\nGPWS_TerrPeaksMode=1\nGPWS_TerrUseCyan=0\nGPWS_V1Callout=1\nGPWS_AirspeedLowAural=1\nGPWS_2500_RA=0\nGPWS_100=1\nGPWS_500=2\nGPWS_400=1\nGPWS_300=1\nGPWS_200=1\nGPWS_1000=1\n\n[TCAS]\nTCAS_ShowAllTraffic=0\nTCAS_FilterRange=40\nTCAS_FilterSeparation=2800\n\n[Airframe]\nAirstair=0\nShortFieldPackage=0\nFlightTestPackage=0\nSteelBrakePackage=0\nDualBatteryPackage=0\nYoke CheckList L=1\nYoke CheckList R=1\nHeadrestInstalled L=1\nHeadrestInstalled R=1\nETOPS=0\nDualCargoBottleSystem=0\nSingleClassCabin=1\nEyebrowWindows=0\nSatcomAntenna=2\nEFBInstalled=0\nLED Exterior Lights=2\nPIP Installed=0\nAuto Probe Heat Installed=0\nAuto Ignition Installed=0\nTIOS Antenna Installed=0\n6500 Cabin Altitude Installed=0\nFuel Cutoff New Style Installed=1\nPressurization Panel New Style Installed=0\nMMR Panels Installed=0\nAux Fuel Config=0\nAft Aux Tanks=0\nFwd Aux Tanks=0\nYaw Damp Gauge Installed=0\nStby Instruments=0\nHGSInstalled=1\nHGS_AutoAIII=1\nHGS_GSrefInPRI=1\nWindow Shades Installed=0\nFlight Tablet Installed=1\n\n[Units]\nMetricWeightUnits=0\n\n[EFB]\nEFBWeightLbs=1\nEFBTemperaturesInF=1\nEFBWindSpeedKnots=1\nEFBNearestInclPrecision=1\nEFBNearestInclJetFuel=1\nEFBDistanceFeet=1\nEFBHeightFeet=1\nEFBObstDistanceRefStart=1\nEFBObstHeightRefStart=1\nEFBRwyClrwyStpwy=0\nEFBMinDatabaseRwyLength=5000\nEFBMinNearestRwyLen=5000\n\n[IRS.0]\nLastPosValid=1\n\n[FMC]\nLastPosLatLon=N3520.3E02511.3\n\n[IRS.1]\nLastPosValid=1\n"
+  },
+  "textureParts": {
+    "label": "贴图通道",
+    "iconNote": "PMDG 不需要自动图标，由 aircraft.cfg / livery.json 引用缩略图。",
+    "note": "MSFS PMDG 贴图通道为 DDS。在“手动指定贴图”里选择每个通道导出的 PNG，工具会自动转 DDS。只做外部机身涂装时，优先给 F1/F2/F3/TAIL 底色；内部客舱通道不填也会由 texture.CFG fallback 兜底。",
+    "parts": [
+      {
+        "key": "tex_NN_ALBD",
+        "label": "机头 / 机鼻区域 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/NN_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_CABIN_ALBD",
+        "label": "客舱内壁 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_CABIN_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_CABIN_EMIS",
+        "label": "通道：PMDG_NG3_CABIN_EMIS · 自发光层（可选）",
+        "target": "texture.{textureTag}/PMDG_NG3_CABIN_EMIS.PNG.DDS",
+        "help": "PMDG 导出的 自发光层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_DECAL1_ALBD",
+        "label": "贴花 / 舱门标志 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_DECAL1_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_ENG_ALBD",
+        "label": "发动机底色 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_ENG_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_ENG_COMP",
+        "label": "通道：PMDG_NG3_ENG_COMP · 金属高光 / 通道层（可选）",
+        "target": "texture.{textureTag}/PMDG_NG3_ENG_COMP.PNG.DDS",
+        "help": "PMDG 导出的 金属高光 / 通道层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_F1_ALBD",
+        "label": "机身前段底色 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_F1_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_F1_COMP",
+        "label": "通道：PMDG_NG3_F1_COMP · 金属高光 / 通道层（可选）",
+        "target": "texture.{textureTag}/PMDG_NG3_F1_COMP.PNG.DDS",
+        "help": "PMDG 导出的 金属高光 / 通道层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_F2_ALBD",
+        "label": "机身中段底色 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_F2_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_F2_COMP",
+        "label": "通道：PMDG_NG3_F2_COMP · 金属高光 / 通道层（可选）",
+        "target": "texture.{textureTag}/PMDG_NG3_F2_COMP.PNG.DDS",
+        "help": "PMDG 导出的 金属高光 / 通道层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_F3_ALBD",
+        "label": "机身后段底色 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_F3_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_F3_COMP",
+        "label": "通道：PMDG_NG3_F3_COMP · 金属高光 / 通道层（可选）",
+        "target": "texture.{textureTag}/PMDG_NG3_F3_COMP.PNG.DDS",
+        "help": "PMDG 导出的 金属高光 / 通道层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_TAIL_ALBD",
+        "label": "垂尾底色 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_TAIL_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_WINFR_ALBD",
+        "label": "翼根整流罩底色 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_WINFR_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_WINFR_COMP",
+        "label": "通道：PMDG_NG3_WINFR_COMP · 金属高光 / 通道层（可选）",
+        "target": "texture.{textureTag}/PMDG_NG3_WINFR_COMP.PNG.DDS",
+        "help": "PMDG 导出的 金属高光 / 通道层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_WINGL_ALBD",
+        "label": "左机翼底色 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_WINGL_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_WINGL_COMP",
+        "label": "通道：PMDG_NG3_WINGL_COMP · 金属高光 / 通道层（可选）",
+        "target": "texture.{textureTag}/PMDG_NG3_WINGL_COMP.PNG.DDS",
+        "help": "PMDG 导出的 金属高光 / 通道层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_WINGR_ALBD",
+        "label": "右机翼底色 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_NG3_WINGR_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_NG3_WINGR_COMP",
+        "label": "通道：PMDG_NG3_WINGR_COMP · 金属高光 / 通道层（可选）",
+        "target": "texture.{textureTag}/PMDG_NG3_WINGR_COMP.PNG.DDS",
+        "help": "PMDG 导出的 金属高光 / 通道层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_PAXE_ALBD",
+        "label": "客舱经济舱 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_PAXE_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_PAXE_COMP",
+        "label": "通道：PMDG_PAXE_COMP · 金属高光 / 通道层（可选）",
+        "target": "texture.{textureTag}/PMDG_PAXE_COMP.PNG.DDS",
+        "help": "PMDG 导出的 金属高光 / 通道层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_PAXE_EMIS",
+        "label": "通道：PMDG_PAXE_EMIS · 自发光层（可选）",
+        "target": "texture.{textureTag}/PMDG_PAXE_EMIS.PNG.DDS",
+        "help": "PMDG 导出的 自发光层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_PAXMA_ALBD",
+        "label": "客舱主舱前部 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_PAXMA_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_PAXMA_EMIS",
+        "label": "通道：PMDG_PAXMA_EMIS · 自发光层（可选）",
+        "target": "texture.{textureTag}/PMDG_PAXMA_EMIS.PNG.DDS",
+        "help": "PMDG 导出的 自发光层（可选） 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "tex_PMDG_PAXSS_ALBD",
+        "label": "客舱主舱后部 · 底色 / 涂装主体层",
+        "target": "texture.{textureTag}/PMDG_PAXSS_ALBD.PNG.DDS",
+        "help": "PMDG 导出的 底色 / 涂装主体层 通道（DDS）。留空则由 texture.CFG 的 fallback 兜底。"
+      },
+      {
+        "key": "thumb",
+        "label": "涂装缩略图 thumbnail.JPG",
+        "target": "texture.{textureTag}/thumbnail.JPG",
+        "keepFormat": true,
+        "help": "请选择 JPEG 预览图（保持 JPEG，不转 DDS）。"
+      },
+      {
+        "key": "thumb_small",
+        "label": "小缩略图 thumbnail_small.JPG",
+        "target": "texture.{textureTag}/thumbnail_small.JPG",
+        "keepFormat": true,
+        "help": "请选择小尺寸 JPEG 预览图（保持 JPEG，不转 DDS）。"
+      }
+    ]
+  },
+  "templates": [
+    {
+      "path": "aircraft.cfg",
+      "label": "aircraft.cfg（涂装注册）",
+      "body": "[VERSION]\nmajor=1\nminor=0\n\n[VARIATION]\nbase_container = \"..\\PMDG 737-800\"\n\n[fltsim.0]\ntitle=PMDG 737-800 {airline} ({registration})\natc_airline={airline}\natc_flight_number=738\natc_heavy=0\natc_id={registration}\natc_id_color=0x00000000\natc_id_enable=1\natc_id_font=\natc_parking_codes=\natc_parking_types=GATE,RAMP\ndescription=Boeing 737-800 powered by CFM engines v 1.0\\nPMDG Simulations\\nwww.precisionmanuals.com \\n\\nProduced under license from Boeing Management Company.\\n\\nBoeing 737, 737-800 & Boeing are among the trademarks owned by Boeing.\nicao_airline={airlineCode}\nisAirTraffic=0\nisUserSelectable=1\nKB_Checklists=\nKB_Reference=\nmodel={modelCode}\npanel=\npmdg_revision=1\nsim=B737-800\nsound=\ntexture={textureTag}\nui_autonomy=6\nui_certified_ceiling=41000\nui_createdby=PMDG\nui_fuel_burn_rate=4500\nui_manufacturer=Boeing\nui_max_range=2935\nui_thumbnailfile=\nui_type=737-800\nui_typerole=Commercial Airliner\nui_variation={airline} ({registration})\nvisual_damage=0\nwip_indicator=2\n"
+    },
+    {
+      "path": "livery.json",
+      "label": "livery.json（MSFS 涂装清单）",
+      "body": "{\n  \"rev\": 2,\n  \"productId\": 191,\n  \"productPackage\": \"pmdg-aircraft-738\",\n  \"title\": \"{airline} ({registration})\",\n  \"subtitle\": \"\",\n  \"airline\": \"{airline}\",\n  \"liveryId\": \"{liveryId}\",\n  \"version\": 1001,\n  \"tags\": []\n}"
+    },
+    {
+      "path": "model.{modelCode}/model.cfg",
+      "label": "model.{modelCode}/model.cfg（机模变体声明）",
+      "body": "[model.options]\nwithExterior_showInterior=true\nwithExterior_showInterior_hideFirstLod=true\nwithInterior_forceFirstLod=true\nwithInterior_showExterior=true\n\n[models]\nexterior=../../PMDG 737-800/Behaviors/PMDG_NG3_800{modelCode}.xml\ninterior=../../PMDG 737-800/Behaviors/PMDG_NG3_VC_800.xml\n\n"
+    },
+    {
+      "path": "texture.{textureTag}/texture.CFG",
+      "label": "texture.{textureTag}/texture.CFG（贴图引用表）",
+      "body": "[fltsim]\n\nfallback.1=..\\..\\PMDG 737-800\\texture.vc\nfallback.2=..\\..\\PMDG 737-800\\texture.common\nfallback.3=..\\..\\PMDG 737-800\\texture.800"
+    }
+  ]
+}

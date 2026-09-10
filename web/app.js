@@ -64,13 +64,40 @@ function sanitizeName(name) {
   s = s.replace(/\s+/g, " ").trim().replace(/[. ]+$/, "");
   return s;
 }
+function slugify(s) {
+  return String(s || "")
+    .replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "").toLowerCase();
+}
+function codeOf(s) {
+  return String(s || "").replace(/[^A-Za-z0-9]+/g, "").toUpperCase();
+}
+/* 与后端一致的派生标识计算（textureTag / liveryId …），供命名预览使用 */
+function deriveValues(profile, values) {
+  const out = Object.assign({}, values);
+  const derive = (profile && profile.derive) || {};
+  for (const token of Object.keys(derive)) {
+    let spec = derive[token];
+    let expr = spec, mode = "raw";
+    if (spec && typeof spec === "object") {
+      expr = spec.expr || "";
+      mode = spec.mode || "raw";
+    }
+    let txt = fillTemplate(expr, out);
+    if (mode === "slug") txt = slugify(txt);
+    else if (mode === "code") txt = codeOf(txt);
+    out[token] = txt;
+  }
+  return out;
+}
+
 function previewName() {
   const p = state.payload ? state.payload.profile : null;
   if (!p || !p.naming) return "Livery_…";
+  const vals = deriveValues(p, state.values);
   const n = p.naming || {};
-  const prefix = sanitizeName(fillTemplate(n.prefixTemplate, state.values)).trim();
+  const prefix = sanitizeName(fillTemplate(n.prefixTemplate, vals)).trim();
   const coreTpl = n.nameTemplate || n.coreTemplate || "";
-  const core = sanitizeName(fillTemplate(coreTpl, state.values)).trim();
+  const core = sanitizeName(fillTemplate(coreTpl, vals)).trim();
   const parts = [prefix, core].filter(Boolean).join(" ");
   const final = parts || "Livery_…";
   $("namePreview").textContent = final;
@@ -206,43 +233,117 @@ function renderFields(payload) {
     host.innerHTML = '<div class="empty">该机模档案没有可填写的字段。</div>';
     return;
   }
-  // 按 group 分组（保留出现顺序）
-  const groups = [];
-  const index = {};
+  // 生成渲染块：带 panel 的字段聚合进一个可折叠面板；无 panel 的沿用 group 分组
+  const blocks = [];
+  const bIndex = {};
   for (const f of fields) {
-    const g = f.group || "涂装信息";
-    if (!(g in index)) { index[g] = groups.length; groups.push({ name: g, items: [] }); }
-    groups[index[g]].items.push(f);
-  }
-
-  for (const grp of groups) {
-    const box = document.createElement("div");
-    box.className = "field-group";
-    const title = document.createElement("div");
-    title.className = "group-title";
-    title.textContent = grp.name;
-    const configCount = grp.items.filter((f) => f.target === "config").length;
-    if (configCount && grp.items.length === configCount) {
-      const b = document.createElement("span");
-      b.className = "g-badge";
-      b.textContent = "写入机模配置";
-      title.appendChild(b);
-    } else if (configCount) {
-      const b = document.createElement("span");
-      b.className = "g-badge";
-      b.textContent = `${configCount} 项写入配置`;
-      title.appendChild(b);
+    if (f.panel) {
+      const pname = String(f.panel);
+      const key = "panel|" + pname;
+      if (!(key in bIndex)) {
+        bIndex[key] = blocks.length;
+        blocks.push({ kind: "panel", name: pname, closed: f.panelClosed !== false, subs: [] });
+      }
+      const block = blocks[bIndex[key]];
+      if (f.panelClosed !== undefined) block.closed = f.panelClosed !== false;
+      const subName = f.subgroup || f.group || "";
+      let sb = null;
+      for (const s of block.subs) if (s.name === subName) { sb = s; break; }
+      if (!sb) { sb = { name: subName, items: [] }; block.subs.push(sb); }
+      sb.items.push(f);
+    } else {
+      const gname = f.group || "涂装信息";
+      const key = "group|" + gname;
+      if (!(key in bIndex)) {
+        bIndex[key] = blocks.length;
+        blocks.push({ kind: "group", name: gname, items: [] });
+      }
+      blocks[bIndex[key]].items.push(f);
     }
-    box.appendChild(title);
+  }
+  for (const blk of blocks) {
+    if (blk.kind === "panel") host.appendChild(buildOptionPanel(blk));
+    else host.appendChild(buildGroupBox(blk));
+  }
+}
 
+function buildGroupBox(blk) {
+  const box = document.createElement("div");
+  box.className = "field-group";
+  const title = document.createElement("div");
+  title.className = "group-title";
+  title.textContent = blk.name;
+  const items = blk.items;
+  const configCount = items.filter((f) => f.target === "config").length;
+  if (configCount && items.length === configCount) {
+    const b = document.createElement("span");
+    b.className = "g-badge";
+    b.textContent = "写入机模配置";
+    title.appendChild(b);
+  } else if (configCount) {
+    const b = document.createElement("span");
+    b.className = "g-badge";
+    b.textContent = `${configCount} 项写入配置`;
+    title.appendChild(b);
+  }
+  box.appendChild(title);
+  const grid = document.createElement("div");
+  grid.className = "form-grid";
+  for (const f of items) grid.appendChild(buildField(f));
+  box.appendChild(grid);
+  return box;
+}
+
+function buildOptionPanel(blk) {
+  const box = document.createElement("div");
+  box.className = "fg-panel" + (blk.closed ? " closed" : "");
+
+  const head = document.createElement("div");
+  head.className = "fg-panel-head";
+  head.setAttribute("role", "button");
+  head.setAttribute("tabindex", "0");
+  const caret = document.createElement("span");
+  caret.className = "fg-caret";
+  caret.textContent = blk.closed ? "▸" : "▾";
+  const title = document.createElement("span");
+  title.className = "fg-panel-title";
+  title.textContent = blk.name;
+  const count = blk.subs.reduce((n, s) => n + s.items.length, 0);
+  const badge = document.createElement("span");
+  badge.className = "fg-badge";
+  badge.textContent = `共 ${count} 项 · ${blk.subs.length} 个分区`;
+  head.appendChild(caret);
+  head.appendChild(title);
+  head.appendChild(badge);
+  const toggle = () => {
+    const closed = box.classList.toggle("closed");
+    caret.textContent = closed ? "▸" : "▾";
+  };
+  head.addEventListener("click", (e) => {
+    if (e.target.closest(".fg-panel-title, .fg-panel-head")) toggle();
+  });
+  head.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+  });
+  box.appendChild(head);
+
+  const body = document.createElement("div");
+  body.className = "fg-panel-body";
+  for (const sb of blk.subs) {
+    if (sb.items.length === 0) continue;
+    if (sb.name) {
+      const subTitle = document.createElement("div");
+      subTitle.className = "fg-subgroup-title";
+      subTitle.textContent = sb.name;
+      body.appendChild(subTitle);
+    }
     const grid = document.createElement("div");
     grid.className = "form-grid";
-    for (const f of grp.items) {
-      grid.appendChild(buildField(f));
-    }
-    box.appendChild(grid);
-    host.appendChild(box);
+    for (const f of sb.items) grid.appendChild(buildField(f));
+    body.appendChild(grid);
   }
+  box.appendChild(body);
+  return box;
 }
 
 function buildField(f) {
@@ -288,8 +389,8 @@ function buildBoolSwitch(f) {
   cb.className = "switch";
   cb.dataset.key = f.key;
   cb.dataset.role = "bool";
-  const cur = f.value == null ? f.default : f.value;
-  cb.checked = String(cur).toUpperCase() === "YES" || String(cur).toUpperCase() === "TRUE";
+  const cur = String(f.value == null ? f.default : f.value).toUpperCase();
+  cb.checked = cur === "YES" || cur === "TRUE" || cur === "ON" || cur === "1";
   cb.addEventListener("change", onValueInput);
 
   const track = document.createElement("span");

@@ -1,13 +1,17 @@
-"""X-Plane 涂装打包引擎。
+"""多平台涂装打包引擎（X-Plane / MSFS 2020）。
 
-负责把用户提供的「源涂装文件夹」整理、复制并生成 X-Plane 可识别的涂装：
+负责把用户提供的「源涂装文件夹」整理、复制并生成机模可识别的涂装：
 
 1. 找出源文件夹里的**内容根目录**（兼容 zip 解压产生的多一层外文件夹）；
-2. 按机模档案规整布局：贴图收进 ``objects/``、图标放到涂装根目录；
-3. 若档案有配置文件（如 ToLiss 的 ``objects/livery.tlscfg``），把 UI 选项与
-   源文件里未知的键合并写回（保留注释与顺序）；
+2. 按机模档案规整布局：贴图收进 ``objects/``、图标放到涂装根目录
+   （MSFS/PMDG 档案则按模板写 aircraft.cfg / livery.json / model.* / texture.*）；
+3. 若档案有配置文件（如 ToLiss 的 ``objects/livery.tlscfg``、PMDG 的
+   ``options.ini``），把 UI 选项与源文件里未知的键合并写回（保留注释与顺序）；
 4. 缺失缩略图时自动由大图生成；
 5. 按 ``[型号] 航司 注册号`` 之类的模板命名并输出到目标目录。
+
+配置格式：``config.format`` 缺省为扁平 KV（tlscfg）；``"ini"`` 走分节 INI
+（inicfg，用于 PMDG options.ini），此时未声明的键/分节随默认模板保留。
 """
 from __future__ import annotations
 
@@ -24,6 +28,7 @@ from typing import Dict, List, Optional, Tuple
 from . import dds
 from . import pngutil
 from . import tlscfg
+from . import inicfg
 from . import profiles as profiles_mod
 
 # ---------------------------------------------------------------- 常量
@@ -35,7 +40,7 @@ _JUNK_EXT = {
 }
 _TEXTURE_EXT = {".png", ".dds", ".tga", ".bmp", ".jpg", ".jpeg"}
 _ICON_NAME_RE = re.compile(r"^.*_icon11(?:_thumb)?\.png$", re.IGNORECASE)
-_CONFIG_NAMES = {"livery.tlscfg", "tlsconfig", "livery.cfg", "tls.cfg"}
+_CONFIG_NAMES = {"livery.tlscfg", "tlsconfig", "livery.cfg", "tls.cfg", "options.ini"}
 _MAX_PURE_GEN_PIXELS = 16_000_000  # 无 Pillow 时仅对小贴图自动生成图标
 
 
@@ -183,10 +188,14 @@ def find_existing_config(info: SourceInfo, profile: dict) -> Optional[str]:
     for fi in info.files:
         if fi.rel_posix.lower() in cand_low:
             return fi.abs_path
-    # 兜底：任意 .tlscfg
+    # 兜底：任意 .tlscfg（ini 档案另找 options.ini）
     for fi in info.files:
         if fi.rel_posix.lower().endswith(".tlscfg"):
             return fi.abs_path
+    if _cfg_format(profile) == "ini":
+        for fi in info.files:
+            if fi.rel_posix.lower().endswith("options.ini"):
+                return fi.abs_path
     return None
 
 
@@ -253,9 +262,60 @@ def meta_keys(profile: dict) -> set:
     return {f.get("key") for f in profile.get("fields", []) if f.get("target") == "meta"}
 
 
-def _serialize_field_value(field: dict, value) -> str:
+# ---------------------------------------------------------------- 配置格式（扁平 KV / INI 分节）
+def _cfg_format(profile: dict) -> str:
+    return ((profile or {}).get("config", {}) or {}).get("format", "") or ""
+
+
+def _cfg_module(profile: dict):
+    """按配置格式返回解析/写回模块：``format == "ini"`` → inicfg，否则 tlscfg。"""
+    return inicfg if _cfg_format(profile) == "ini" else tlscfg
+
+
+def _bool_to_01(value) -> str:
+    """把常见布尔写法归一化为 0 / 1（PMDG options.ini 风格）。"""
+    return "1" if str(value).strip().upper() in ("YES", "Y", "TRUE", "1", "ON") else "0"
+
+
+def _slug(value: str) -> str:
+    """转成小写下划线 slug（用于 liveryId 等标识）。"""
+    s = re.sub(r"[^A-Za-z0-9]+", "_", str(value or "")).strip("_").lower()
+    return s
+
+
+def _code(value: str) -> str:
+    """保留字母数字并大写（用于 texture 文件夹标签等）。"""
+    s = re.sub(r"[^A-Za-z0-9]+", "", str(value or "")).upper()
+    return s
+
+
+def _derived_values(profile: dict, values: Dict[str, str]) -> Dict[str, str]:
+    """在 values 基础上按档案 ``derive`` 规约补充派生标识（textureTag / liveryId 等）。
+
+    规约写法：``"token": "expr"``（raw）或 ``"token": {"expr": ..., "mode": "raw|slug|code"}``。
+    """
+    resolved = dict(values)
+    derive = (profile or {}).get("derive", {}) or {}
+    for token, spec in derive.items():
+        if isinstance(spec, str):
+            expr, mode = spec, "raw"
+        else:
+            expr = (spec or {}).get("expr", "")
+            mode = (spec or {}).get("mode", "raw")
+        txt = fill_template(expr, resolved)
+        if mode == "slug":
+            txt = _slug(txt)
+        elif mode == "code":
+            txt = _code(txt)
+        resolved[token] = txt
+    return resolved
+
+
+def _serialize_field_value(field: dict, value, as_01: bool = False) -> str:
     val = "" if value is None else str(value)
     if field.get("type") == "bool":
+        if as_01:
+            return _bool_to_01(val)
         return tlscfg.normalize_bool(val)
     return val
 
@@ -367,14 +427,17 @@ def _run_conversions(jobs: List[Tuple[str, str]],
 
 def _place_one(src_abs: str, dest_rel: str, target: str,
                convert_jobs: List[Tuple[str, str]],
-               stem_sources: Optional[Dict[str, str]] = None) -> str:
+               stem_sources: Optional[Dict[str, str]] = None,
+               keep_format: bool = False) -> str:
     """按 DDS 规则把一张源文件复制/排队转换到目标目录；返回最终相对路径。
 
     需要转 DDS 的位图只加入队列（打包末尾统一并行转换），其余立即复制。
     ``stem_sources`` 记录「去扩展名目标路径 → 源文件绝对路径」，供自动生成
     图标时找到原始位图（目标里只有转换后的 .dds）。
+    ``keep_format`` 为 True 时不做任何扩展名改写（用于 PMDG thumbnail.JPG 等
+    必须保持 JPEG/原格式的部位贴图）。
     """
-    out_rel = _raster_dds_dest(dest_rel)
+    out_rel = dest_rel if keep_format else _raster_dds_dest(dest_rel)
     dst_abs = os.path.join(target, out_rel)
     if _needs_convert(src_abs, out_rel):
         convert_jobs.append((src_abs, dst_abs))
@@ -416,6 +479,57 @@ def _source_or_empty(source: Optional[str]) -> SourceInfo:
     return scan_source(source)
 
 
+_TOKEN_PLACEHOLDER_RE = re.compile(r"\{(\w+)\}")
+
+
+def _target_keeps_format(profile: dict, tgt: str) -> bool:
+    """目标路径是否需要保持原文件格式（不改成 .dds）。
+
+    用于 PMDG 等纹理目录里的 thumbnail.JPG / thumbnail_small.JPG：这些文件虽然
+    是位图，但机模以原文件名/格式读取，不能转成 .dds。
+    """
+    if _cfg_format(profile) != "ini":
+        return False
+    for pt in ((profile.get("textureParts", {}) or {}).get("parts", []) or []):
+        if not pt.get("keepFormat"):
+            continue
+        declared = (pt.get("target", "") or "").replace("\\", "/")
+        # 把目标里的 {token} 展开成通配，其余片段正则转义，避免 . / + 等被误解析
+        pat_parts = []
+        pos = 0
+        for m in _TOKEN_PLACEHOLDER_RE.finditer(declared):
+            pat_parts.append(re.escape(declared[pos:m.start()]))
+            pat_parts.append(r"[^/]+")
+            pos = m.end()
+        pat_parts.append(re.escape(declared[pos:]))
+        pat = "".join(pat_parts)
+        try:
+            if re.fullmatch(pat, tgt):
+                return True
+        except re.error:
+            continue
+    return False
+
+
+def _write_templates(profile: dict, resolved: Dict[str, str], target: str,
+                     warnings: List[str], actions: List[str]) -> None:
+    """按档案 ``templates`` 写静态文件（如 PMDG 的 aircraft.cfg / livery.json /
+    model.cfg / texture.CFG），内容中的 ``{token}`` 用派生值填充。"""
+    for tpl in (profile.get("templates", []) or []):
+        if not tpl.get("path"):
+            continue
+        rel = _normalize_rel(fill_template(str(tpl.get("path", "")), resolved))
+        body = fill_template(str(tpl.get("body", "")), resolved)
+        dest_abs = os.path.join(target, rel)
+        os.makedirs(os.path.dirname(dest_abs), exist_ok=True)
+        try:
+            with open(dest_abs, "w", encoding="utf-8", newline="") as fh:
+                fh.write(body)
+            actions.append(f"生成 {rel}")
+        except OSError as e:
+            warnings.append(f"写入模板 {rel} 失败：{e}")
+
+
 def package(profile: dict, source: Optional[str] = None,
             values: Optional[Dict[str, str]] = None,
             output_base: str = "", overwrite: bool = False,
@@ -437,6 +551,13 @@ def package(profile: dict, source: Optional[str] = None,
     texture_overrides = {k: v for k, v in (texture_overrides or {}).items() if v}
     info = _source_or_empty(source)
 
+    # 派生标识（textureTag / liveryId …）基于当前字段值计算；命名与模板/路径都引用它
+    resolved = _derived_values(profile, values)
+    if _cfg_format(profile) == "ini":
+        for need, hint in (("liveryId", "航司/注册号"), ("textureTag", "航司代码/注册号")):
+            if not resolved.get(need):
+                raise LiveryError(f"无法生成涂装标识 {need}：请先填写{hint}（用于命名文件夹与贴图目录）。")
+
     # 没有内容时，只要有「手动指定部位贴图 / 手动图标 / 可自动生成的配置」，
     # 仍可从零组装出一套完整涂装；否则没有任何可产出内容，直接报错。
     empty_source = not info.files
@@ -455,7 +576,7 @@ def package(profile: dict, source: Optional[str] = None,
                 "请先为某个部位或涂装图标选择一张图片，再点击打包。"
             )
 
-    name = build_livery_name(profile, values)
+    name = build_livery_name(profile, resolved)
     target = os.path.abspath(os.path.join(output_base, name))
     if os.path.exists(target):
         if not overwrite:
@@ -472,8 +593,9 @@ def package(profile: dict, source: Optional[str] = None,
     cfg_pref = profile.get("config", {}).get("preferred", "") or ""
     existing_cfg = find_existing_config(info, profile)
     cfg_entries: Optional[List] = None
+    cfg_module = _cfg_module(profile)
     if existing_cfg:
-        cfg_entries = tlscfg.parse_file(existing_cfg)
+        cfg_entries = cfg_module.parse_file(existing_cfg)
 
     cfg_routed = False
     copied = 0
@@ -486,11 +608,15 @@ def package(profile: dict, source: Optional[str] = None,
     for raw_tgt, raw_src in (texture_overrides or {}).items():
         if not raw_src:
             continue
-        tgt = _normalize_rel(raw_tgt)
+        # 目标名可能含 {token}（如 PMDG 的 texture.{textureTag}），先按派生值替换
+        resolved_tgt = fill_template(raw_tgt, resolved)
+        tgt = _normalize_rel(resolved_tgt)
         src = os.path.abspath(raw_src)
         if not os.path.isfile(src):
             raise LiveryError(f"指定贴图文件不存在：{raw_src}")
-        out_rel = _place_one(src, tgt, target, convert_jobs, stem_sources)
+        keep_format = _target_keeps_format(profile, tgt)
+        out_rel = _place_one(src, tgt, target, convert_jobs, stem_sources,
+                             keep_format=keep_format)
         copied += 1
         mapped_dests.add(out_rel)
         actions.append(f"按指定：{os.path.basename(src)} → {out_rel}"
@@ -509,6 +635,11 @@ def package(profile: dict, source: Optional[str] = None,
             continue
         base = os.path.basename(fi.rel_posix)
         rp = fi.rel_posix
+        # INI 类底稿（PMDG 等）：cfg 模板文件一律由模板生成，源里出现也跳过拷贝，
+        # 避免重复落到 objects/ 下。
+        if _cfg_format(profile) == "ini" and base.lower() in \
+                ("aircraft.cfg", "livery.json", "model.cfg", "texture.cfg"):
+            continue
         if _is_config_name(base):
             if not cfg_routed and cfg_pref:
                 dest = cfg_pref
@@ -534,6 +665,9 @@ def package(profile: dict, source: Optional[str] = None,
 
     # 统一并行执行 DDS 转换（PNG/BMP → DXT5；图标保持 PNG）
     _run_conversions(convert_jobs, warnings, actions)
+
+    # 模板静态文件（PMDG aircraft.cfg / livery.json / model.cfg / texture.CFG …）
+    _write_templates(profile, resolved, target, warnings, actions)
 
     # 图标处理
     icon_report = _handle_icons(profile, info, target, warnings, actions,
@@ -625,6 +759,12 @@ def _write_user_icon(icon_cfg: dict, prefix_hint: str, src_abs: str,
             "existing": [], "userIcon": True}
 
 
+def _auto_icon_enabled(profile: dict) -> bool:
+    """PMDG 等由模板管理贴图的档案可关闭“缺图标自动生成/警告”。"""
+    cfg = (profile or {}).get("config", {}) or {}
+    return not (cfg.get("disableAutoIcon") or profile.get("disableAutoIcon"))
+
+
 def _handle_icons(profile: dict, info: SourceInfo, target: str,
                   warnings: List[str], actions: List[str],
                   icon_source: Optional[str] = None,
@@ -669,7 +809,7 @@ def _handle_icons(profile: dict, info: SourceInfo, target: str,
         except OSError as e:
             warnings.append(f"生成缩略图失败：{e}")
 
-    if big is None:
+    if big is None and _auto_icon_enabled(profile):
         # 完全没图标：尝试从某张贴图生成
         gen = _try_generate_icons(info, icon_cfg, prefix_hint, target,
                                   warnings, actions, stem_sources)
@@ -747,6 +887,13 @@ def _try_generate_icons(info: SourceInfo, icon_cfg: dict, prefix_hint: str,
     return (big_name, thumb_name)
 
 
+def _kv_count(mod, entries: list) -> int:
+    """统计配置条目的键数量（兼容扁平 KV 与 INI 分节两种模块）。"""
+    if hasattr(mod, "_iter_kv"):
+        return len(list(mod._iter_kv(entries)))
+    return len([e for e in entries if isinstance(e, tlscfg.KV)])
+
+
 def _write_config(profile: dict, values: Dict[str, str],
                   cfg_entries: Optional[List], target: str,
                   warnings: List[str], actions: List[str]) -> dict:
@@ -755,10 +902,18 @@ def _write_config(profile: dict, values: Dict[str, str],
     fields = profile.get("fields", [])
     declared = declared_config_keys(profile)
     metas = meta_keys(profile)
+    fmt = _cfg_format(profile)
+    mod = _cfg_module(profile)
     if not pref and not declared:
         return {"path": None, "created": False, "reason": "该档案无需配置文件"}
 
-    entries = list(cfg_entries) if cfg_entries else []
+    entries: List = list(cfg_entries) if cfg_entries else []
+    if not entries and fmt == "ini":
+        # 从零新建 INI 配置：以档案内的默认模板为底稿，保证未声明的键/分节齐全
+        template = (cfg.get("defaultTemplate") or "").strip()
+        if template:
+            entries = inicfg.parse(template)
+    as_01 = (fmt == "ini")
     # 依次写入声明字段（保持档案中的顺序与默认）
     for f in fields:
         if f.get("target") != "config":
@@ -767,30 +922,36 @@ def _write_config(profile: dict, values: Dict[str, str],
         val = values.get(key)
         if val is None:
             val = f.get("default", "")
-        val = _serialize_field_value(f, val)
-        if val == "" and not isinstance(val, bool):
+        val = _serialize_field_value(f, val, as_01=as_01)
+        if val == "":
             continue
-        tlscfg.set_kv(entries, key, val)
-    # 追加来源文件中未知、且被用户编辑的键（保留）
-    for key, val in values.items():
-        if key in metas or key in declared or val in (None, ""):
-            continue
-        tlscfg.set_kv(entries, key, val)
+        if fmt == "ini":
+            inicfg.set_kv(entries, key, val, section=f.get("section") or None)
+        else:
+            tlscfg.set_kv(entries, key, val)
+    # 追加来源文件中未知、且被用户编辑的键（保留）——仅扁平 KV 档案适用，
+    # INI 档案以模板/既有文件为底稿，未声明键已随底稿保留，无需追加
+    if fmt != "ini":
+        for key, val in values.items():
+            if key in metas or key in declared or val in (None, ""):
+                continue
+            tlscfg.set_kv(entries, key, val)
 
     if not entries:
         return {"path": None, "created": False, "reason": "无配置内容"}
 
     dest = os.path.abspath(os.path.join(target, pref)) if pref else None
     if dest:
-        text = tlscfg.serialize(entries)
+        text = mod.serialize(entries)
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         with open(dest, "w", encoding="utf-8") as fh:
             fh.write(text)
         if cfg_entries:
-            actions.append(f"更新配置 {pref}（{len([e for e in entries if isinstance(e, tlscfg.KV)])} 个键）")
+            actions.append(f"更新配置 {pref}（{_kv_count(mod, entries)} 个键）")
         else:
             actions.append(f"新建配置 {pref}")
-        return {"path": pref, "created": not bool(cfg_entries), "keys": len(entries)}
+        return {"path": pref, "created": not bool(cfg_entries),
+                "keys": _kv_count(mod, entries)}
     warnings.append("档案声明了配置字段但未指定写入路径")
     return {"path": None, "created": False, "reason": "未指定配置路径"}
 
@@ -833,8 +994,9 @@ def scan_payload(profile: dict, source: Optional[str] = None) -> dict:
 
     existing_cfg_path = find_existing_config(info, profile)
     existing_values: Dict[str, str] = {}
+    cfg_module = _cfg_module(profile)
     if existing_cfg_path:
-        existing_values = tlscfg.to_dict(tlscfg.parse_file(existing_cfg_path))
+        existing_values = cfg_module.to_dict(cfg_module.parse_file(existing_cfg_path))
 
     filled = []
     for f in fields:
@@ -846,7 +1008,8 @@ def scan_payload(profile: dict, source: Optional[str] = None) -> dict:
         filled.append(item)
 
     extras = []
-    if existing_cfg_path:
+    # INI 档案的未声明键随「默认模板/既有文件」保留，不逐个列成可编辑字段
+    if existing_cfg_path and _cfg_format(profile) != "ini":
         for key, val in existing_values.items():
             if key not in declared and key not in metas:
                 extras.append({
@@ -902,6 +1065,7 @@ def scan_payload(profile: dict, source: Optional[str] = None) -> dict:
         defaults[it["key"]] = it["value"]
     for it in extras:
         defaults[it["key"]] = it["value"]
+    preview_values = _derived_values(profile, defaults)
 
     return {
         "ok": True,
@@ -917,6 +1081,7 @@ def scan_payload(profile: dict, source: Optional[str] = None) -> dict:
             "textureDir": profile.get("textureDir", "objects"),
             "hasConfig": bool(profile.get("config", {}).get("preferred")),
             "naming": profile.get("naming", {}),
+            "derive": profile.get("derive", {}),
         },
         "fields": filled + extras,
         "existingConfigPath": existing_cfg_path,
@@ -929,5 +1094,5 @@ def scan_payload(profile: dict, source: Optional[str] = None) -> dict:
         },
         "sourceTextures": source_textures,
         "warnings": warnings,
-        "namePreview": build_livery_name(profile, defaults),
+        "namePreview": build_livery_name(profile, preview_values),
     }
